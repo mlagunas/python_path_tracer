@@ -7,19 +7,13 @@ def vec3_type_error(var, name='A'):
 
 class Ray(object):
 
-    def __init__(self, A, B):
+    def __init__(self, origin, direction):
         # Consider the ray as p(t) = A + t*B
-        vec3_type_error(A)
-        vec3_type_error(B)
+        vec3_type_error(origin)
+        vec3_type_error(direction)
 
-        self.A = A
-        self.B = B
-
-    def origin(self):
-        return self.A
-
-    def direction(self):
-        return self.B
+        self.origin = origin
+        self.direction = direction
 
     def point_at_parameter(self, t):
-        return self.A + t * self.B
+        return self.origin + t * self.direction

@@ -6,13 +6,15 @@ class Vec3(object):
 
     def __init__(self, x, y=None, z=None):
         if y is None and z is None:
-            assert len(x)==3, 'list or np.array must have 3 elements'
+            assert len(x) == 3, 'list or np.array must have 3 elements'
             self.vec = np.array(x, dtype=np.float64)
         elif x is not None and y is not None and z is not None:
             self.vec = np.array([x, y, z], dtype=np.float64)
         else:
             raise ValueError(
                 'Vec3 can only by created by passing a 3 elements list or np.array or passing directly the three elements')
+
+        self.dot = self._instance_dot
 
     def __getitem__(self, item):
         return self.vec[item]
@@ -84,7 +86,11 @@ class Vec3(object):
     def __neg__(self):
         return Vec3(-self.vec)
 
-    def dot(self, other):
+    @staticmethod
+    def dot(vec_1, vec_2):
+        return np.dot(vec_1.vec, vec_2.vec)
+
+    def _instance_dot(self, other):
         return np.dot(self.vec, other.vec)
 
     def cross(self, other):

@@ -19,7 +19,7 @@ origin = Vec3(0., 0., 0.)
 vertical = Vec3(0., 2., 0.)
 horizontal = Vec3(4., 0., 0.)
 
-sph = Sphere(center=[0, 0, 1], radius=0.5)
+sph = Sphere(center=[0, 0, -1], radius=0.5)
 
 
 def main():
@@ -42,9 +42,11 @@ def main():
 
 
 def get_color(ray):
-    if sph.ray_intersect(ray):
-        return Vec3(1, 0, 0)
-    t = 0.5 * (ray.direction().unit_vector().y() + 1.)
+    normal = sph.get_normal(ray)
+    if normal is not None:
+        return normal
+
+    t = 0.5 * (ray.direction.unit_vector().y() + 1.)
     return (1. - t) * Vec3(1., 1., 1.) + t * Vec3(0.5, 0.7, 1.)
 
 
