@@ -1,6 +1,8 @@
 from vec3 import Vec3
 from ray import Ray
-from sphere import Sphere
+from geometries.sphere import Sphere
+from geometries.hitable import HitableList
+from tqdm import tqdm
 
 # canvas properties
 width = 200
@@ -19,7 +21,11 @@ origin = Vec3(0., 0., 0.)
 vertical = Vec3(0., 2., 0.)
 horizontal = Vec3(4., 0., 0.)
 
-sph = Sphere(center=[0, 0, -1], radius=0.5)
+# define world geometries
+world = []
+world.append(Sphere(center=[0, 0, -1], radius=0.5))
+world.append(Sphere(center=[0, -100.5, -1], radius=100))
+world = HitableList(world)
 
 
 def main():
@@ -29,25 +35,25 @@ def main():
         f.write(header)
 
         # Iterate over heigth and width
-        for j in range(height - 1, 0, -1):
+        for j in tqdm(range(height - 1, 0, -1)):
             for i in range(width):
                 u = i / width
                 v = j / height
 
                 ray = Ray(origin, low_left_corner + u * horizontal + v * vertical)
-                color = get_color(ray).apply(lambda x: x * color_max)
+                color = get_color(ray, world).apply(lambda x: x * color_max)
 
                 pixel = '%d %d %d\n' % (color.x(), color.y(), color.z())
                 f.write(pixel)
 
 
-def get_color(ray):
-    normal = sph.get_normal(ray)
-    if normal is not None:
-        return normal
-
-    t = 0.5 * (ray.direction.unit_vector().y() + 1.)
-    return (1. - t) * Vec3(1., 1., 1.) + t * Vec3(0.5, 0.7, 1.)
+def get_color(ray, world):
+    if world.hit(ray, 0.0, float("inf")):  # return normal of a hit with an item in the world
+        hit_record = world.hit_record
+        return 0.5 * hit_record['normal'].apply(lambda x: x + 1.)
+    else:  # return background blue color
+        t = 0.5 * (ray.direction.unit_vector().y() + 1.)
+        return (1. - t) * Vec3(1., 1., 1.) + t * Vec3(0.5, 0.7, 1.)
 
 
 if __name__ == '__main__':
