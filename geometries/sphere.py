@@ -1,4 +1,4 @@
-from vec3 import Vec3
+from core.vec3 import Vec3
 import numbers
 import math
 from .hitable import Hitable

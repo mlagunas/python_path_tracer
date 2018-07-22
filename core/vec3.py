@@ -15,6 +15,7 @@ class Vec3(object):
                 'Vec3 can only by created by passing a 3 elements list or np.array or passing directly the three elements')
 
         self.dot = self._instance_dot
+        self.cross = self._instance_cross
 
     def __getitem__(self, item):
         return self.vec[item]
@@ -93,10 +94,17 @@ class Vec3(object):
     def _instance_dot(self, other):
         return np.dot(self.vec, other.vec)
 
-    def cross(self, other):
+    @staticmethod
+    def cross(vec1, vec2):
+        return Vec3(np.cross(vec1.vec, vec2.vec))
+
+    def _instance_cross(self, other):
         return Vec3(np.cross(self.vec, other.vec))
 
     def __str__(self):
+        return 'Vec3: [%.3f, %.3f, %.3f]' % (self.vec[0], self.vec[1], self.vec[2])
+
+    def __repr__(self):
         return 'Vec3: [%.3f, %.3f, %.3f]' % (self.vec[0], self.vec[1], self.vec[2])
 
 

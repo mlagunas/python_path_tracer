@@ -1,4 +1,4 @@
-from vec3 import Vec3
+from core.vec3 import Vec3
 
 
 def vec3_type_error(var, name='A'):

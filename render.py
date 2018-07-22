@@ -1,5 +1,5 @@
-from vec3 import Vec3
-from ray import Ray
+from core.vec3 import Vec3
+from core.ray import Ray
 from geometries.sphere import Sphere
 from geometries.hitable import HitableList
 from tqdm import tqdm
@@ -21,13 +21,14 @@ origin = Vec3(0., 0., 0.)
 vertical = Vec3(0., 2., 0.)
 horizontal = Vec3(4., 0., 0.)
 
-# define world geometries
+# define geometries in the world
 world = []
 world.append(Sphere(center=[0, 0, -1], radius=0.5))
 world.append(Sphere(center=[0, -100.5, -1], radius=100))
 world = HitableList(world)
 
 
+# start the rendering process and save result into ppm file 
 def main():
     header = 'P3\n%d %d\n%d\n' % (width, height, 255)
 
@@ -48,7 +49,7 @@ def main():
 
 
 def get_color(ray, world):
-    if world.hit(ray, 0.0, float("inf")):  # return normal of a hit with an item in the world
+    if world.hit(ray, 0.0001, float("inf")):  # return normal of a hit with an item in the world
         hit_record = world.hit_record
         return 0.5 * hit_record['normal'].apply(lambda x: x + 1.)
     else:  # return background blue color
