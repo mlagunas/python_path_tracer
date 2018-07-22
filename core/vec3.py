@@ -1,5 +1,6 @@
 import numpy as np
 import numbers
+import random
 
 
 class Vec3(object):
@@ -100,6 +101,14 @@ class Vec3(object):
 
     def _instance_cross(self, other):
         return Vec3(np.cross(self.vec, other.vec))
+
+    @staticmethod
+    def random_in_unit_sphere():
+        p = 2. * Vec3(random.random(), random.random(), random.random()) - Vec3(1., 1., 1.)
+        while (p.squared_length() >= 1.):
+            p = 2. * Vec3(random.random(), random.random(), random.random()) - Vec3(1., 1., 1.)
+
+        return p
 
     def __str__(self):
         return 'Vec3: [%.3f, %.3f, %.3f]' % (self.vec[0], self.vec[1], self.vec[2])

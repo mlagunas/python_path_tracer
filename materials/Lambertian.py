@@ -8,7 +8,7 @@ class Metal(Material):
         self.albedo = albedo
 
     def scatter(self, ray_in, hit_record):
-        target = hit_record['point'] + hit_record['normal'] + random_in_unit_sphere()
+        target = hit_record['point'] + hit_record['normal'] + Vec3.random_in_unit_sphere()
         self.scattered = Ray(hit_record['point'], target - hit_record['point'])
         self.attenuation = self.albedo
 
