@@ -17,6 +17,7 @@ class Vec3(object):
 
         self.dot = self._instance_dot
         self.cross = self._instance_cross
+        self.sqrt = self._instance_sqrt
 
     def __getitem__(self, item):
         return self.vec[item]
@@ -87,6 +88,12 @@ class Vec3(object):
 
     def __neg__(self):
         return Vec3(-self.vec)
+
+    def sqrt(self):
+        return Vec3(np.sqrt(self.vec))
+
+    def _instance_sqrt(vec3):
+        return Vec3(np.sqrt(vec3.vec))
 
     @staticmethod
     def dot(vec_1, vec_2):

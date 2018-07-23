@@ -6,11 +6,12 @@ from .hitable import Hitable
 
 class Sphere(Hitable):
 
-    def __init__(self, center, radius):
+    def __init__(self, center, radius, material):
         assert isinstance(radius, numbers.Number), 'radius must be a number'
 
         self.center = Vec3(center)
         self.radius = radius
+        self.material = material
 
     def hit(self, ray, t_min, t_max):
         ray_to_center = ray.origin - self.center
@@ -28,7 +29,8 @@ class Sphere(Hitable):
                 self.hit_record = {
                     't': temp,
                     'point': point,
-                    'normal': (point - self.center) / self.radius
+                    'normal': (point - self.center) / self.radius,
+                    'material': self.material
                 }
                 return True
 
@@ -38,7 +40,8 @@ class Sphere(Hitable):
                 self.hit_record = {
                     't': temp,
                     'point': point,
-                    'normal': (point - self.center) / self.radius
+                    'normal': (point - self.center) / self.radius,
+                    'material': self.material
                 }
                 return True
         return False

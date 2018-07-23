@@ -3,7 +3,7 @@ from core.ray import Ray
 from core.vec3 import Vec3
 
 
-class Metal(Material):
+class Lambertian(Material):
     def __init__(self, albedo):
         self.albedo = albedo
 
