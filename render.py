@@ -19,7 +19,7 @@ HEIGHT = 100
 MAX_COLOR = 255.99
 
 # number of antialiasing samples
-antialiasing_samples = 4
+antialiasing_samples = 16
 
 # define camera
 camera = Camera(low_left_corner=Vec3(-2., -1., -1.),
@@ -31,8 +31,8 @@ camera = Camera(low_left_corner=Vec3(-2., -1., -1.),
 world = []
 world.append(Sphere(center=[0, 0, -1], radius=0.5, material=Lambertian(Vec3(0.8, 0.3, 0.3))))
 world.append(Sphere(center=[0, -100.5, -1], radius=100, material=Lambertian(Vec3(0.8, 0.8, 0.))))
-world.append(Sphere(center=[1, 0, -1], radius=0.5, material=Metal(Vec3(0.8, 0.6, 0.2))))
-world.append(Sphere(center=[-1, 0, -1], radius=0.5, material=Metal(Vec3(0.8, 0.8, 0.8))))
+world.append(Sphere(center=[1, 0, -1], radius=0.5, material=Metal(Vec3(0.8, 0.6, 0.2), fuzzy=0.3)))
+world.append(Sphere(center=[-1, 0, -1], radius=0.5, material=Metal(Vec3(0.8, 0.8, 0.8), fuzzy=1.)))
 world = HitableList(world)
 
 
