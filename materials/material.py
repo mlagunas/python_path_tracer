@@ -1,7 +1,3 @@
 class Material(object):
-    def scatter(self, ray_in):
-        raise NotImplementedError()
-
-    @staticmethod
-    def reflect(vector, normal):
+    def scatter(self, ray_in, hit_record):
         raise NotImplementedError()

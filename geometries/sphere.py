@@ -2,6 +2,7 @@ from core.vec3 import Vec3
 import numbers
 import math
 from .hitable import Hitable
+from core import HitPoint
 
 
 class Sphere(Hitable):
@@ -26,23 +27,21 @@ class Sphere(Hitable):
             temp = (-second - math.sqrt(discriminant)) / first
             if temp < t_max and temp > t_min:
                 point = ray.point_at_parameter(temp)
-                self.hit_record = {
-                    't': temp,
-                    'point': point,
-                    'normal': (point - self.center) / self.radius,
-                    'material': self.material
-                }
+                self.hit_record = HitPoint(
+                    t=temp,
+                    point=point,
+                    normal=(point - self.center) / self.radius,
+                    material=self.material)
                 return True
 
             temp = (-second + math.sqrt(discriminant)) / first
             if temp < t_max and temp > t_min:
                 point = ray.point_at_parameter(temp)
-                self.hit_record = {
-                    't': temp,
-                    'point': point,
-                    'normal': (point - self.center) / self.radius,
-                    'material': self.material
-                }
+                self.hit_record = HitPoint(
+                    t=temp,
+                    point=point,
+                    normal=(point - self.center) / self.radius,
+                    material=self.material)
                 return True
         return False
 

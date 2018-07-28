@@ -23,7 +23,7 @@ class HitableList(Hitable):
         for hitable in self.hitable_array:
             if hitable.hit(ray, t_min, closest):
                 hit_anything = True
-                closest = hitable.hit_record['t']
+                closest = hitable.hit_record.t
                 self.hit_record = hitable.hit_record
 
         return hit_anything

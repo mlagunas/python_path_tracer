@@ -5,11 +5,11 @@ from core.vec3 import Vec3
 
 class Lambertian(Material):
     def __init__(self, albedo):
-        self.albedo = albedo
+        self.albedo = Vec3(albedo)
 
     def scatter(self, ray_in, hit_record):
-        target = hit_record['point'] + hit_record['normal'] + Vec3.random_in_unit_sphere()
-        self.scattered = Ray(hit_record['point'], target - hit_record['point'])
+        target = hit_record.point + hit_record.normal + Vec3.random_in_unit_sphere()
+        self.scattered = Ray(hit_record.point, target - hit_record.point)
         self.attenuation = self.albedo
 
         return True

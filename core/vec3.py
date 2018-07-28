@@ -1,14 +1,23 @@
 import numpy as np
 import numbers
 import random
+import math
 
 
 class Vec3(object):
 
     def __init__(self, x, y=None, z=None):
         if y is None and z is None:
-            assert len(x) == 3, 'list or np.array must have 3 elements'
-            self.vec = np.array(x, dtype=np.float64)
+            if isinstance(x, list) or isinstance(x, np.ndarray) or isinstance(x, tuple):
+                assert len(x) == 3, 'list or np.array must have 3 elements'
+                self.vec = np.array(x, dtype=np.float64)
+            elif isinstance(x, numbers.Number):
+                self.vec = np.array([x, x, x], dtype=np.float64)
+            elif isinstance(x, Vec3):
+                self.vec = x.vec
+            else:
+                raise ValueError(
+                    'Vec3 can only by created by passing a 3 elements list or np.array or passing directly the three elements')
         elif x is not None and y is not None and z is not None:
             self.vec = np.array([x, y, z], dtype=np.float64)
         else:
@@ -114,8 +123,28 @@ class Vec3(object):
         p = 2. * Vec3(random.random(), random.random(), random.random()) - Vec3(1., 1., 1.)
         while (p.squared_length() >= 1.):
             p = 2. * Vec3(random.random(), random.random(), random.random()) - Vec3(1., 1., 1.)
-
         return p
+
+    @staticmethod
+    def random_in_unit_disk():
+        p = 2. * Vec3(random.random(), random.random(), 0) - Vec3(1, 1, 0)
+        while Vec3.dot(p, p) >= 1.:
+            p = 2. * Vec3(random.random(), random.random(), 0) - Vec3(1, 1, 0)
+        return p
+
+    def reflect(ray_in, normal):
+        return ray_in - 2 * Vec3.dot(ray_in, normal) * normal
+
+    @staticmethod
+    def refract(vec, normal, ni_over_nt):
+        unit_v = vec.unit_vector()
+        dt = Vec3.dot(unit_v, normal)
+        discriminant = 1. - ni_over_nt ** 2 * (1 - dt ** 2)
+
+        if discriminant > 0:
+            refracted = ni_over_nt * (unit_v - normal * dt) - normal * math.sqrt(discriminant)
+            return True, refracted
+        return False, None
 
     def __str__(self):
         return 'Vec3: [%.3f, %.3f, %.3f]' % (self.vec[0], self.vec[1], self.vec[2])
@@ -127,7 +156,8 @@ class Vec3(object):
 def main():
     a = Vec3([1, 2, 3])
     b = Vec3([2, 4, 6])
-
+    c = Vec3(1)
+    print(c)
     print('a', a)
     print('b', b)
     print('add', a + b)
