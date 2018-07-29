@@ -5,31 +5,36 @@ from tqdm import tqdm
 import random
 import numpy as np
 from matplotlib import pyplot as plt
+from multiprocessing.dummy import Pool as ThreadPool
 
 # set random seed for reproducibility
 random.seed(123456)
 rand = random.random
 
+# number of cores to use
+n_cores = 8
+pool = ThreadPool(4)
+
 # outfile image name
 out_name = 'test_final_image'
 
 # canvas properties
-width = 600
-height = 400
+width = 1200
+height = 800
 
 # number samples per pixel
-samples_per_pixel = 1
+samples_per_pixel = 10
 
 
 # start the rendering process and save result into ppm file
 def main():
     # define camera
-    lookfrom = Vec3(3, 3, 2)
-    lookat = Vec3(0, 0, -1)
+    lookfrom = Vec3(13, 2, 3)
+    lookat = Vec3(0, 0, 0)
     vup = Vec3(0, 1, 0)
     camera = Camera(lookfrom=lookfrom, lookat=lookat, vup=vup,  # set camera plane coordinates
                     vertical_fov=20, aspect_ratio=width / height,  # set canvas properties
-                    aperture=1., focus_dist=(lookfrom - lookat).length())  # set camera lense
+                    aperture=.1, focus_dist=10)  # set camera lense
 
     # define geometries in the world
     # world = []
@@ -45,25 +50,14 @@ def main():
     out_img = np.zeros((height, width, 3))
 
     # Iterate over heigth and width
-    for row in tqdm(range(height)):
-        for col in range(width):
+    with tqdm(total=width * height) as pbar:
+        for row in tqdm(range(height)):
+            for col in range(width):
+                path_trace(col, row, camera, world, out_img, pbar)
 
-            # initialize color to zero
-            color = Vec3(0)
-
-            # antialiasing by sampling multiple times in the same pixel
-            for s in range(samples_per_pixel):
-                u = (col + rand()) / width
-                v = (row + rand()) / height
-
-                # trace ray
-                ray = camera.get_ray(u, v)
-
-                # get color of the intersected objects
-                color += get_color(ray, world, depth=0, max_depth=50)
-
-            # normalize color for the number of samples and store it
-            out_img[row, col, :] = (Vec3.sqrt(color / samples_per_pixel)).vec
+    # with tqdm(total=width * height) as pbar:
+    #     thread_input = [(col, row, camera, world, out_img, pbar) for row in range(height) for col in range(width)]
+    #     pool.starmap(path_trace, thread_input)
 
     plt.figure()
     plt.axis('equal')
@@ -71,6 +65,28 @@ def main():
     plt.axis('off')
     plt.show()
     plt.imsave('images/' + out_name + '.png', out_img)
+
+
+def path_trace(col, row, camera, world, out_img, pbar):
+    # initialize color to zero
+    color = Vec3(0)
+
+    # antialiasing by sampling multiple times in the same pixel
+    for s in range(samples_per_pixel):
+        u = (col + rand()) / width
+        v = (row + rand()) / height
+
+        # trace ray
+        ray = camera.get_ray(u, v)
+
+        # get color of the intersected objects
+        color += get_color(ray, world, depth=0, max_depth=50)
+
+    # normalize color for the number of samples and store it
+    out_img[row, col, :] = (Vec3.sqrt(color / samples_per_pixel)).vec
+
+    # call tqdm
+    pbar.update()
 
 
 def create_world():
