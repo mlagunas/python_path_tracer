@@ -1,29 +1,32 @@
 import math
 import random
-from core import Vec3, Ray
+from core import Ray
+from core.vec_utils import length
 from materials import Material
+from .utils import reflect, refract
+import numpy as np
 
 
 class Dielectric(Material):
 
     def __init__(self, refraction_index):
         self.refraction_index = refraction_index
-        self.attenuation = Vec3(1., 1., 1.)
+        self.attenuation = np.ones(1)
 
     def scatter(self, ray_in, hit_record):
-        reflected = Vec3.reflect(ray_in.direction, hit_record.normal)
+        reflected = reflect(ray_in.direction, hit_record.normal)
 
         # If the ray is inside the sphere set values accordingly
-        if Vec3.dot(ray_in.direction, hit_record.normal) > 0.:
+        if np.dot(ray_in.direction, hit_record.normal) > 0.:
             outward_normal = -hit_record.normal
             ni_over_nt = self.refraction_index
-            cosine = self.refraction_index * Vec3.dot(ray_in.direction, hit_record.normal) / ray_in.direction.length()
+            cosine = self.refraction_index * np.dot(ray_in.direction, hit_record.normal) / length(ray_in.direction)
         else:
             outward_normal = hit_record.normal
             ni_over_nt = 1. / self.refraction_index
-            cosine = -Vec3.dot(ray_in.direction, hit_record.normal) / ray_in.direction.length()
+            cosine = -np.dot(ray_in.direction, hit_record.normal) / length(ray_in.direction)
 
-        is_refracted, refracted = Vec3.refract(ray_in.direction, outward_normal, ni_over_nt)
+        is_refracted, refracted = refract(ray_in.direction, outward_normal, ni_over_nt)
 
         # get probability of reflection over refraction with schlick approximation
         reflect_prob = self._schlick(cosine) if is_refracted else 1
