@@ -51,7 +51,7 @@ def main():
 
     # Iterate over heigth and width
     with tqdm(total=width * height) as pbar:
-        for row in tqdm(range(height)):
+        for row in range(height):
             for col in range(width):
                 path_trace(col, row, camera, world, out_img, pbar)
 
