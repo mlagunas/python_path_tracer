@@ -1,35 +1,34 @@
-from core import Camera
+from core import Camera, Multithread
 from core.vec_utils import unit_vector
 from geometries import Sphere, HitableList
 from materials import Lambertian, Metal, Dielectric
 from tqdm import tqdm
+from matplotlib import pyplot as plt
+from multiprocessing import Process, Pool, Value, Queue
+
 import random
 import numpy as np
-from matplotlib import pyplot as plt
-
-# from multiprocessing.dummy import Pool as ThreadPool
 
 # set random seed for reproducibility
 random.seed(123456)
 rand = random.random
 
-# # number of cores to use
-# n_cores = 8
-# pool = ThreadPool(8)
+n_cores = 8  # number of cores to use
 
-# outfile image name
-out_name = 'test_final_image'
+out_name = 'test_final_image'  # outfile image name
+
+samples_per_pixel = 32  # number samples per pixel
 
 # canvas properties
 width = 120
 height = 80
 
-# number samples per pixel
-samples_per_pixel = 32
 
-
-# start the rendering process and save result into ppm file
 def main():
+    global pbar, pbar_update
+
+    pbar_update = Value('d', 0)  # create a value to track progress
+
     # define camera
     lookfrom = np.array([13, 2, 3])
     lookat = np.array([0, 0, 0])
@@ -37,7 +36,6 @@ def main():
     camera = Camera(lookfrom=lookfrom, lookat=lookat, vup=vup,  # set camera plane coordinates
                     vertical_fov=20, aspect_ratio=width / height,  # set canvas properties
                     aperture=.1, focus_dist=10)  # set camera lense
-    get_ray = camera.get_ray
 
     # define geometries in the world
     # world = []
@@ -50,46 +48,55 @@ def main():
 
     world = create_world()
 
-    out_img = np.zeros((height, width, 3))
+    multithread = Multithread(camera, world, n_cores)  # create object to handle multithreading
+    multithread.create_working_pool(width, height)  # create the pool of pixels for each thread
+    with tqdm(total=(width * height)) as pbar:  # start the processes
+        multithread.run(path_trace)
 
-    # Iterate over heigth and width
-    with tqdm(total=width * height) as pbar:
-        for row in range(height):
-            for col in range(width):
-                path_trace(col, row, get_ray, world, out_img, pbar)
-
-    # with tqdm(total=width * height) as pbar:
-    #     thread_input = [(col, row, get_ray, world, out_img, pbar) for row in range(height) for col in range(width)]
-    #     pool.starmap(path_trace, thread_input)
-
+    # store output image
+    # todo change this into a FILM class
     plt.figure()
     plt.axis('equal')
-    plt.imshow(out_img, origin='lower')
+    plt.imshow(multithread.out_img, origin='lower')
     plt.axis('off')
     plt.show()
-    plt.imsave('images/' + out_name + '.png', out_img, origin='lower')
+    plt.imsave('images/' + out_name + '.png', multithread.out_img, origin='lower')
 
 
-def path_trace(col, row, get_ray, world, out_img, pbar):
-    # initialize color to zero
-    color = np.zeros(3)
+# todo change this into an integrators class
+def path_trace(cols, rows, get_ray, world):
+    global pbar, pbar_update
 
-    # antialiasing by sampling multiple times in the same pixel
-    for s in range(samples_per_pixel):
-        u = (col + rand()) / width
-        v = (row + rand()) / height
+    color_values = np.zeros((*cols.shape, 3))
 
-        # trace ray
-        ray = get_ray(u, v)
+    for idx in range(cols.shape[0]):
+        row, col = rows[idx], cols[idx]
+        # initialize color to zero
+        color = np.zeros(3)
 
-        # get color of the intersected objects
-        color += get_color(ray, world, depth=0, max_depth=50)
+        # antialiasing by sampling multiple times in the same pixel
+        for s in range(samples_per_pixel):
+            u = (col + rand()) / width
+            v = (row + rand()) / height
 
-    # normalize color for the number of samples and store it
-    out_img[row, col, :] = np.sqrt(color / samples_per_pixel)
+            # trace ray
+            ray = get_ray(u, v)
 
-    # call tqdm
-    pbar.update()
+            # get color of the intersected objects
+            color += get_color(ray, world, depth=0, max_depth=50)
+
+        # normalize color for the number of samples and store it
+        # out_img[row, col, :] = np.sqrt(color / samples_per_pixel)
+        color_values[idx] = np.sqrt(color / samples_per_pixel)
+
+        # update tqdm var
+        with pbar_update.get_lock():
+            pbar_update.value += 1
+            pbar.n = pbar_update.value
+            pbar.refresh()
+
+    # queue.put(color_values, cols, cols)  # store the output
+    return color_values, rows, cols
 
 
 def get_color(ray, world, depth, max_depth=50):
