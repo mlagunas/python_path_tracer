@@ -1,8 +1,10 @@
 import numpy as np
-from multiprocessing import Process, Pool, Value, Queue
+from pathos.multiprocessing import Pool
+import sys
 
 
 class Multithread(object):
+
     def __init__(self, camera, world, n_cores):
         self.n_cores = n_cores
         self.camera = camera
@@ -19,12 +21,11 @@ class Multithread(object):
     def run(self, integrator):
         pool = Pool(processes=self.n_cores)  # create pool of threads
         results = [pool.apply_async(
-            integrator,
-            args=(*(self.rows_pool[core_idx],
-                    self.cols_pool[core_idx],
-                    self.camera.get_ray,
-                    self.world)
-                  ,)
+            integrator.run,
+            args=(self.rows_pool[core_idx],
+                  self.cols_pool[core_idx],
+                  self.camera.get_ray,
+                  self.world)
         ) for core_idx in range(self.n_cores)]
 
         output = [p.get() for p in results]  # get results

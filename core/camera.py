@@ -1,12 +1,19 @@
 import math
+import random
 from .ray import Ray
 import numpy as np
 from .vec_utils import unit_vector, random_in_unit_disk
 
+rand = random.random
+
 
 class Camera(object):
 
-    def __init__(self, lookfrom, lookat, vup, vertical_fov, aspect_ratio, aperture, focus_dist):
+    def __init__(self, lookfrom, lookat, vup, vertical_fov, aspect_ratio, aperture, focus_dist, time0, time1):
+        # track variables to know the time the shutter is open
+        self.time_0 = time0
+        self.time_1 = time1
+
         theta = vertical_fov * math.pi / 180.  # vertical fov from degrees to radians
         half_height = math.tan(theta / 2.)  # get height of the camera
         half_width = aspect_ratio * half_height
@@ -32,5 +39,7 @@ class Camera(object):
     def get_ray(self, s, t):
         random_lens_point = self.lens_radius * random_in_unit_disk()
         offset = self.u * random_lens_point[0] + self.v * random_lens_point[1]
+        time = self.time_0 + rand() * (self.time_1 - self.time_0)
         return Ray(origin=self.origin + offset,
-                   direction=self.low_left_corner + s * self.horizontal + t * self.vertical - self.origin - offset)
+                   direction=self.low_left_corner + s * self.horizontal + t * self.vertical - self.origin - offset,
+                   time=time)

@@ -10,9 +10,9 @@ class Metal(Material):
         self.albedo = np.array(albedo)
         self.fuzzy = fuzzy
 
-    def scatter(self, ray_in, hit_record):
-        reflected = reflect(unit_vector(ray_in.direction), hit_record.normal)
-        self.scattered = Ray(hit_record.point, reflected + self.fuzzy * random_in_unit_sphere())
+    def scatter(self, ray, hit_record):
+        reflected = reflect(unit_vector(ray.direction), hit_record.normal)
+        self.scattered = Ray(hit_record.point, reflected + self.fuzzy * random_in_unit_sphere(), ray.time)
         self.attenuation = self.albedo
 
         return np.dot(self.scattered.direction, hit_record.normal) > 0.

@@ -8,9 +8,9 @@ class Lambertian(Material):
     def __init__(self, albedo):
         self.albedo = albedo
 
-    def scatter(self, ray_in, hit_record):
+    def scatter(self, ray, hit_record):
         target = hit_record.point + hit_record.normal + random_in_unit_sphere()
-        self.scattered = Ray(hit_record.point, target - hit_record.point)
+        self.scattered = Ray(hit_record.point, target - hit_record.point, ray.time)
         self.attenuation = self.albedo
 
         return True
