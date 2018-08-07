@@ -78,7 +78,7 @@ class MovingSphere(Sphere):
 
         discriminant = second ** 2 - first * third
 
-        if discriminant > 0.:
+        if discriminant > 0:
             temp = (-second - math.sqrt(discriminant)) / first
             if temp < t_max and temp > t_min:
                 point = ray.point_at_parameter(temp)
@@ -102,7 +102,7 @@ class MovingSphere(Sphere):
 
     def get_normal(self, ray):
         t = self.ray_intersect(ray)
-        if t > 0.:
+        if t > 0:
             normal = (ray.point_at_parameter(t) - self.center(ray.time)).unit_vector()
             return 0.5 * (normal + 1.)
         else:

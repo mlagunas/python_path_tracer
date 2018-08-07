@@ -10,15 +10,15 @@ import numpy as np
 random.seed(123456)
 rand = random.random
 
-n_cores = 8  # number of cores to use
+n_cores = 1  # number of cores to use
 
 out_name = 'depth_test_final_image'  # outfile image name
 
-samples_per_pixel = 1  # number samples per pixel
+samples_per_pixel = 1128 # number samples per pixel
 
 # canvas properties
-width = 120 * 3
-height = 80 * 3
+width = 120*4
+height = 80*4
 
 
 def main():
