@@ -3,6 +3,7 @@ import math
 from .hitable import Hitable
 from core import HitPoint
 import numpy as np
+from geometries import AABB
 
 
 class Sphere(Hitable):
@@ -44,6 +45,9 @@ class Sphere(Hitable):
                     material=self.material)
                 return True
         return False
+
+    def bounding_box(self, t0, t1):
+        return True, AABB(self.center - self.radius, self.center + self.radius)
 
     def get_normal(self, ray):
         t = self.ray_intersect(ray)
@@ -99,6 +103,12 @@ class MovingSphere(Sphere):
                     material=self.material)
                 return True
         return False
+
+    def bounding_box(self, t0, t1):
+        bounding_box_t0 = AABB(self.center(self.time0) - self.radius, self.center(self.time0) + self.radius)
+        bounding_box_t1 = AABB(self.center(self.time1) - self.radius, self.center(self.time1) + self.radius)
+
+        return True, AABB.sorrounding_box(bounding_box_t0, bounding_box_t1)
 
     def get_normal(self, ray):
         t = self.ray_intersect(ray)
