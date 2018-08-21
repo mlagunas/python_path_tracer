@@ -50,7 +50,7 @@ class HitableList(Hitable):
 
         # get subsequent sorrounding boxes for all the other objects in the array
         for i in range(1, len(self.hitable_array)):
-            is_bbox, temp_bbox = self.hitable_array[0].bounding_box(t0, t1)
+            is_bbox, temp_bbox = self.hitable_array[i].bounding_box(t0, t1)
             if not is_bbox:
                 return False, None
             bbox = AABB.sorrounding_box(bbox, temp_bbox)

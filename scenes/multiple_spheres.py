@@ -119,5 +119,5 @@ def moving_spheres(time0=0, time1=1):
                radius=1,
                material=Metal((0.4, 0.2, 0.15), 0)))
 
-    return BVH_node(world, time0, time1)
-    # return HitableList(world)
+    # return BVH_node(world, 0.001, float("inf"))
+    return HitableList(world)

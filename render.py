@@ -14,11 +14,11 @@ n_cores = 8  # number of cores to use
 
 out_name = 'pruebas_bvh'  # outfile image name
 
-samples_per_pixel = 1 # number samples per pixel
+samples_per_pixel = 16 # number samples per pixel
 
 # canvas properties
-width = 120
-height = 80
+width = 120*4
+height = 80*4
 
 
 def main():

@@ -29,13 +29,7 @@ def compare_bbox(axis=0):
 
 class BVH_node(Hitable):
     def __init__(self, hitable_list, time0, time1):
-        # self.hitable_list = hitable_list
-        # self.time0 = time0
-        # self.time1 = time1
-        #
-        # # tree structure
-        # self.left = None
-        # self.right = None
+
         n = len(hitable_list)
         axis = rint(0, 2)
         sorted(hitable_list, key=functools.cmp_to_key(compare_bbox(axis)))
@@ -59,22 +53,23 @@ class BVH_node(Hitable):
         self.bbox = AABB.sorrounding_box(left_bbox, right_bbox)
 
     def hit(self, ray, t_min, t_max):
-        left_hit = self.left.hit(ray, t_min, t_max)
-        right_hit = self.right.hit(ray, t_min, t_max)
+        if self.bbox.hit(ray, t_min, t_max):
+            left_hit = self.left.hit(ray, t_min, t_max)
+            right_hit = self.right.hit(ray, t_min, t_max)
 
-        # if both branches have been hit then return the one that has been hit first
-        if left_hit and right_hit:
-            left_record, right_record = self.left.hit_record, self.right.hit_record
-            self.hit_record = left_record if left_record.t < right_record.t else right_record
-            return True
+            # if both branches have been hit then return the one that has been hit first
+            if left_hit and right_hit:
+                left_record, right_record = self.left.hit_record, self.right.hit_record
+                self.hit_record = left_record if left_record.t < right_record.t else right_record
+                return True
 
-        if left_hit:
-            self.hit_record = self.left.hit_record
-            return True
+            if left_hit:
+                self.hit_record = self.left.hit_record
+                return True
 
-        if right_hit:
-            self.hit_record = self.right.hit_record
-            return True
+            if right_hit:
+                self.hit_record = self.right.hit_record
+                return True
 
         # if nothing was hit
         return False
