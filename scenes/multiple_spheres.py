@@ -1,5 +1,6 @@
 from geometries import MovingSphere, Sphere, HitableList
 from materials import Lambertian, Dielectric, Metal
+from core import BVH_node
 import numpy as np
 import random
 
@@ -62,7 +63,7 @@ def spheres():
     return HitableList(world)
 
 
-def moving_spheres():
+def moving_spheres(time0=0, time1=1):
     world = []
 
     # add the world 'ground' as a big sphere
@@ -118,4 +119,5 @@ def moving_spheres():
                radius=1,
                material=Metal((0.4, 0.2, 0.15), 0)))
 
-    return HitableList(world)
+    return BVH_node(world, time0, time1)
+    # return HitableList(world)

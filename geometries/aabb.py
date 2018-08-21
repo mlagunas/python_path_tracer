@@ -1,4 +1,4 @@
-from geometries import Hitable
+from .hitable import Hitable
 import numpy as np
 
 
@@ -45,4 +45,4 @@ class AABB(Hitable):
 
     @staticmethod
     def sorrounding_box(box0, box1):
-        AABB(np.minimum(box0.min, box1.min), np.maximum(box0.max, box1.max))
+        return AABB(np.minimum(box0.min, box1.min), np.maximum(box0.max, box1.max))

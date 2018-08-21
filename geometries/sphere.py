@@ -107,7 +107,6 @@ class MovingSphere(Sphere):
     def bounding_box(self, t0, t1):
         bounding_box_t0 = AABB(self.center(self.time0) - self.radius, self.center(self.time0) + self.radius)
         bounding_box_t1 = AABB(self.center(self.time1) - self.radius, self.center(self.time1) + self.radius)
-
         return True, AABB.sorrounding_box(bounding_box_t0, bounding_box_t1)
 
     def get_normal(self, ray):
