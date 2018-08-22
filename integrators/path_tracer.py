@@ -53,7 +53,7 @@ class PathTracer(Integrator):
         return color_values, rows, cols
 
     def _get_color(self, ray, world, depth, max_depth=50):
-        if world.hit(ray, 0.001, float("inf")):  # return normal of a hit with an item in the world
+        if world.hit(ray, 0.001, float("inf")):
             hit_record = world.hit_record
 
             # check if the ray is absorved or scattered

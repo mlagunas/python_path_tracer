@@ -22,9 +22,6 @@ class AABB(Hitable):
         self.min = min
 
     def hit(self, ray, t_min, t_max):
-        # invD = 1. - ray.direction
-        # t0 = (self.min -ray.origin) * invD
-        # t1 = (self.max -ray.origin) * invD
         a = (self.min - ray.origin) / ray.direction
         b = (self.max - ray.origin) / ray.direction
         t0 = np.minimum(a, b)

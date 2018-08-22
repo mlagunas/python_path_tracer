@@ -74,11 +74,11 @@ def moving_spheres(time0=0, time1=1):
                )
     )
 
-    for a in range(-11, 11):
-        for b in range(-11, 11):
+    for a in range(-22, 22):
+        for b in range(-22, 22):
 
             # get geometry center
-            center = np.array([a + 0.9 * rand(), 0.2, b + 0.9 * rand()])
+            center = np.array([a + 0.4 * rand(), 0.2, b + 0.4 * rand()])
 
             # set a random to choose the material of the geometry
             material_chooser = rand()
@@ -119,5 +119,5 @@ def moving_spheres(time0=0, time1=1):
                radius=1,
                material=Metal((0.4, 0.2, 0.15), 0)))
 
-    # return BVH_node(world, 0.001, float("inf"))
-    return HitableList(world)
+    return BVH_node(world, 0.001, float("inf"))
+    # return HitableList(world)

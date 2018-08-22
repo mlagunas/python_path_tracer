@@ -2,6 +2,8 @@ from core import Camera, Multithread
 from integrators import PathTracer, Depth, SurfaceNormal
 from matplotlib import pyplot as plt
 from scenes import spheres, moving_spheres
+from geometries import MovingSphere, Sphere, HitableList
+from materials import Lambertian, Dielectric, Metal
 
 import random
 import numpy as np
@@ -10,11 +12,11 @@ import numpy as np
 random.seed(123456)
 rand = random.random
 
-n_cores = 1  # number of cores to use
+n_cores = 8  # number of cores to use
 
-out_name = 'pruebas_bvh'  # outfile image name
+out_name = 'aabb test'  # outfile image name
 
-samples_per_pixel = 1 # number samples per pixel
+samples_per_pixel = 32  # number samples per pixel
 
 # canvas properties
 width = 120
@@ -34,7 +36,9 @@ def main():
     # create scene
     # world = spheres()
 
-    world = moving_spheres()
+    world = Sphere(center=np.array([0, 0, 0]),
+                   radius=1,
+                   material=Lambertian((0.4, 0.2, 0.1)))
 
     # set integrator
     integrator = PathTracer(samples_per_pixel, width, height)
@@ -53,8 +57,7 @@ def main():
     plt.imshow(multithread.out_img, origin='lower')
     plt.axis('off')
     plt.show()
-    plt.imsave('images/' + out_name + '.png', multithread.out_img, origin='lower')
-
+    # plt.imsave('images/' + out_name + '.png', multithread.out_img, origin='lower')
 
 if __name__ == '__main__':
     main()
