@@ -1,9 +1,13 @@
-from geometries import Hitable, AABB
 import functools
-
 import random
 
+import numba as nb
+
+from geometries import Hitable, sorrounding_box
+
 rint = random.randint
+
+nb.jit()
 
 
 def compare_bbox(axis=0):
@@ -17,9 +21,9 @@ def compare_bbox(axis=0):
             raise Exception('No bounding box in BVHnode constructor')
 
         # return -1 if the right is bigger than the left, 1 if the opposite and 0 if they are equal
-        if bbox_0.min[axis] - bbox_1.min[axis] < 0:
+        if (bbox_0.min[axis] - bbox_1.min[axis]) < 0:
             return -1
-        elif bbox_0.min[axis] - bbox_1.min[axis]:
+        elif (bbox_0.min[axis] - bbox_1.min)[axis] > 0:
             return 1
         else:
             return 0
@@ -50,29 +54,29 @@ class BVH_node(Hitable):
         if not is_left_bbox or not is_right_bbox:
             raise Exception('No bbox in BVH_node constructor')
 
-        self.bbox = AABB.sorrounding_box(left_bbox, right_bbox)
+        self.bbox = sorrounding_box(left_bbox, right_bbox)
 
     def hit(self, ray, t_min, t_max):
         if self.bbox.hit(ray, t_min, t_max):
-            left_hit = self.left.hit(ray, t_min, t_max)
-            right_hit = self.right.hit(ray, t_min, t_max)
 
-            # if both branches have been hit then return the one that has been hit first
-            if left_hit and right_hit:
-                left_record, right_record = self.left.hit_record, self.right.hit_record
-                self.hit_record = left_record if left_record.t < right_record.t else right_record
-                return True
-
+            # hit the left branch
+            left_hit, left_record = self.left.hit(ray, t_min, t_max)
             if left_hit:
-                self.hit_record = self.left.hit_record
-                return True
+                record = left_record  # set the record to the record of the item hit
+                t_max = left_record.t  # update maximum hit distance
 
+            # hit the right branch with the updated distance, if there is a hit, it means that
+            # it occured before the left hit
+            right_hit, right_record = self.right.hit(ray, t_min, t_max)
             if right_hit:
-                self.hit_record = self.right.hit_record
-                return True
+                record = right_record
+
+            # if there was a hit, return it
+            if left_hit or right_hit:
+                return True, record
 
         # if nothing was hit
-        return False
+        return False, None
 
     def bounding_box(self, t0, t1):
         return True, self.bbox

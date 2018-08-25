@@ -1,9 +1,11 @@
-from .integrator import Integrator
-import numpy as np
-from core.vec_utils import unit_vector
 import random
-from tqdm import tqdm
 from multiprocessing import Value
+
+import numpy as np
+from tqdm import tqdm
+
+from core.vec_utils import unit_vector
+from .integrator import Integrator
 
 rand = random.random
 
@@ -53,9 +55,9 @@ class PathTracer(Integrator):
         return color_values, rows, cols
 
     def _get_color(self, ray, world, depth, max_depth=50):
-        if world.hit(ray, 0.001, float("inf")):
-            hit_record = world.hit_record
+        world_hit, hit_record = world.hit(ray, 0.001, float("inf"))  # intersect with the world
 
+        if world_hit:  # run if there was a hit
             # check if the ray is absorved or scattered
             is_scattered = hit_record.material.scatter(ray, hit_record)
 

@@ -1,9 +1,18 @@
-from .material import Material
-from core.ray import Ray
-from core.vec_utils import random_in_unit_sphere
+import numba as nb
 import numpy as np
 
+from core.ray import Ray
+from core.vec_utils import random_in_unit_sphere
+from .material import Material
 
+# spec = [
+#     ('albedo', nb.float64[:]),
+#     ('scattered', Ray.class_type.instance_type),
+#     ('attenuation', nb.float64[:]),
+# ]
+
+
+# @nb.jitclass(spec)
 class Lambertian(Material):
     def __init__(self, albedo):
         self.albedo = albedo

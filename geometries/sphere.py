@@ -1,18 +1,24 @@
-import numbers
 import math
-from .hitable import Hitable
-from core import HitPoint
-import numpy as np
-from geometries import AABB
 
+import numba as nb
+import numpy as np
+
+from core import HitPoint
+from geometries import AABB, sorrounding_box
+from .hitable import Hitable
+from materials import Material
+
+spec = [
+    ('center', nb.float64[:]),
+    ('radius', nb.float64),
+    # ('material', Material.class_type.instance_type),
+]
 
 class Sphere(Hitable):
 
     def __init__(self, center, radius, material):
-        assert isinstance(radius, numbers.Number), 'radius must be a number'
-
-        self.center = np.array(center)
-        self.radius = radius
+        self.center = np.array(center, dtype=np.float64)
+        self.radius = float(radius)
         self.material = material
 
     def hit(self, ray, t_min, t_max):
@@ -28,23 +34,23 @@ class Sphere(Hitable):
             temp = (-second - math.sqrt(discriminant)) / first
             if temp < t_max and temp > t_min:
                 point = ray.point_at_parameter(temp)
-                self.hit_record = HitPoint(
+                hit_record = HitPoint(
                     t=temp,
                     point=point,
                     normal=(point - self.center) / self.radius,
                     material=self.material)
-                return True
+                return True, hit_record
 
             temp = (-second + math.sqrt(discriminant)) / first
             if temp < t_max and temp > t_min:
                 point = ray.point_at_parameter(temp)
-                self.hit_record = HitPoint(
+                hit_record = HitPoint(
                     t=temp,
                     point=point,
                     normal=(point - self.center) / self.radius,
                     material=self.material)
-                return True
-        return False
+                return True, hit_record
+        return False, None
 
     def bounding_box(self, t0, t1):
         return True, AABB(self.center - self.radius, self.center + self.radius)
@@ -61,7 +67,6 @@ class Sphere(Hitable):
 class MovingSphere(Sphere):
 
     def __init__(self, radius, material, center0, center1, time0, time1):
-        assert isinstance(radius, numbers.Number), 'radius must be a number'
 
         self.radius = radius
         self.material = material
@@ -86,28 +91,28 @@ class MovingSphere(Sphere):
             temp = (-second - math.sqrt(discriminant)) / first
             if temp < t_max and temp > t_min:
                 point = ray.point_at_parameter(temp)
-                self.hit_record = HitPoint(
+                hit_record = HitPoint(
                     t=temp,
                     point=point,
                     normal=(point - self.center(ray.time)) / self.radius,
                     material=self.material)
-                return True
+                return True, hit_record
 
             temp = (-second + math.sqrt(discriminant)) / first
             if temp < t_max and temp > t_min:
                 point = ray.point_at_parameter(temp)
-                self.hit_record = HitPoint(
+                hit_record = HitPoint(
                     t=temp,
                     point=point,
                     normal=(point - self.center(ray.time)) / self.radius,
                     material=self.material)
-                return True
-        return False
+                return True, hit_record
+        return False, None
 
     def bounding_box(self, t0, t1):
         bounding_box_t0 = AABB(self.center(self.time0) - self.radius, self.center(self.time0) + self.radius)
         bounding_box_t1 = AABB(self.center(self.time1) - self.radius, self.center(self.time1) + self.radius)
-        return True, AABB.sorrounding_box(bounding_box_t0, bounding_box_t1)
+        return True, sorrounding_box(bounding_box_t0, bounding_box_t1)
 
     def get_normal(self, ray):
         t = self.ray_intersect(ray)

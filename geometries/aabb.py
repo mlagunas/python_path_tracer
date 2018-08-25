@@ -1,7 +1,30 @@
-from .hitable import Hitable
+import numba as nb
 import numpy as np
 
+from .hitable import Hitable
 
+spec = [
+    ('min', nb.typeof((np.empty(3)))),  # a float field
+    ('max', nb.typeof((np.empty(3)))),  # a float field
+]
+
+
+@nb.jit()
+def ffmin(a, b):
+    return np.where(a < b, a, b)
+
+
+@nb.jit()
+def ffmax(a, b):
+    return np.where(a > b, a, b)
+
+
+@nb.jit()
+def sorrounding_box(box0, box1):
+    return AABB(ffmin(box0.min, box1.min), ffmax(box0.max, box1.max))
+
+
+# @nb.jitclass(spec)
 class AABB(Hitable):
     """
     Axis-Aligned Bounding Box (AABB)
@@ -24,25 +47,13 @@ class AABB(Hitable):
     def hit(self, ray, t_min, t_max):
         a = (self.min - ray.origin) / ray.direction
         b = (self.max - ray.origin) / ray.direction
-        t0 = np.minimum(a, b)
-        t1 = np.maximum(a, b)
+        t0 = ffmin(a, b)
+        t1 = ffmax(a, b)
 
-        t_min = np.maximum(t0, t_min)
-        t_max = np.minimum(t1, t_max)
+        t_min = ffmax(t0, t_min)
+        t_max = ffmin(t1, t_max)
 
         if np.any(t_max <= t_min):
-            return False
+            return False, None
 
-        return True
-
-    @staticmethod
-    def ffmin(a, b):
-        return np.mi(a < b, a, b)
-
-    @staticmethod
-    def ffmax(a, b):
-        return np.where(a > b, a, b)
-
-    @staticmethod
-    def sorrounding_box(box0, box1):
-        return AABB(np.minimum(box0.min, box1.min), np.maximum(box0.max, box1.max))
+        return True, None

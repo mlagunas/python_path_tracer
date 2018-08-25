@@ -14,7 +14,7 @@ class Hitable(object):
         raise NotImplementedError()
 
 
-from .aabb import AABB
+from .aabb import sorrounding_box
 
 
 class HitableList(Hitable):
@@ -26,16 +26,18 @@ class HitableList(Hitable):
     def hit(self, ray, t_min, t_max):
         hit_anything = False
         closest = t_max
+        hit_record = None
 
         # hit every object in the array of objects
         for hitable in self.hitable_array:
-            if hitable.hit(ray, t_min, closest):
+            is_hit, new_hit_record = hitable.hit(ray, t_min, closest)
+            if is_hit:
                 hit_anything = True
-                closest = hitable.hit_record.t
-                self.hit_record = hitable.hit_record
+                closest = new_hit_record.t
+                hit_record = new_hit_record
 
         # return if something was hit
-        return hit_anything
+        return hit_anything, hit_record
 
     def bounding_box(self, t0, t1):
 
@@ -53,7 +55,7 @@ class HitableList(Hitable):
             is_bbox, temp_bbox = self.hitable_array[i].bounding_box(t0, t1)
             if not is_bbox:
                 return False, None
-            bbox = AABB.sorrounding_box(bbox, temp_bbox)
+            bbox = sorrounding_box(bbox, temp_bbox)
 
         return True, bbox
 

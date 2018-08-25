@@ -1,12 +1,22 @@
 import math
 import random
+
+import numba as nb
+import numpy as np
+
 from core import Ray
 from core.vec_utils import length
 from materials import Material
 from .utils import reflect, refract
-import numpy as np
+
+# spec = [
+#     ('refraction_index', nb.float64),
+#     ('scattered', Ray.class_type.instance_type),
+#     ('attenuation', nb.float64[:]),
+# ]
 
 
+# @nb.jitclass(spec)
 class Dielectric(Material):
 
     def __init__(self, refraction_index):

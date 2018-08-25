@@ -1,12 +1,28 @@
 import math
 import random
+
+import numba as nb
+
 from .ray import Ray
-import numpy as np
-from .vec_utils import unit_vector, random_in_unit_disk
+from .vec_utils import unit_vector, random_in_unit_disk, cross
 
 rand = random.random
 
+spec = [
+    ('time_0', nb.int64),
+    ('time_1', nb.int64),
+    ('w', nb.float64[:]),
+    ('u', nb.float64[:]),
+    ('v', nb.float64[:]),
+    ('low_left_corner', nb.float64[:]),
+    ('origin', nb.float64[:]),
+    ('lens_radius', nb.float64),
+    ('horizontal', nb.float64[:]),
+    ('vertical', nb.float64[:]),
+]
 
+
+@nb.jitclass(spec)
 class Camera(object):
 
     def __init__(self, lookfrom, lookat, vup, vertical_fov, aspect_ratio, aperture, focus_dist, time0, time1):
@@ -19,8 +35,8 @@ class Camera(object):
         half_width = aspect_ratio * half_height
 
         self.w = unit_vector(lookfrom - lookat)
-        self.u = unit_vector(np.cross(vup, self.w))
-        self.v = np.cross(self.w, self.u)
+        self.u = unit_vector(cross(vup, self.w))
+        self.v = cross(self.w, self.u)
 
         # get canvas low left corner
         self.low_left_corner = lookfrom - half_width * focus_dist * self.u - \
@@ -40,6 +56,7 @@ class Camera(object):
         random_lens_point = self.lens_radius * random_in_unit_disk()
         offset = self.u * random_lens_point[0] + self.v * random_lens_point[1]
         time = self.time_0 + rand() * (self.time_1 - self.time_0)
-        return Ray(origin=self.origin + offset,
-                   direction=self.low_left_corner + s * self.horizontal + t * self.vertical - self.origin - offset,
-                   time=time)
+
+        origin = self.origin + offset
+        direction = self.low_left_corner + s * self.horizontal + t * self.vertical - self.origin - offset
+        return Ray(origin, direction, time)
